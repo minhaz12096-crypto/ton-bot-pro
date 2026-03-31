@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToNow Premium Ads</title>
+    <title>ToNow Premium Ads - Garden Theme</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://adsgram.ai/sdk/v1/adsgram.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
@@ -36,14 +36,14 @@
                 <input type="text" id="tTitle" placeholder="Channel Name">
                 <input type="text" id="tLink" placeholder="t.me/yourlink">
                 <p id="labelPriceInfo">Price: 1.0 TON = 10,000 Points</p>
-                <button class="btn-success" onclick="launchAd()">Pay & Launch</button>
+                <button id="btnLaunch" class="btn-success" onclick="launchAd()">Pay & Launch</button>
             </div>
         </div>
     </main>
 
     <nav class="bottom-menu">
-        <div class="nav-item active" onclick="showPage('homePage', this)"><i class="fa fa-home"></i><br>Home</div>
-        <div class="nav-item" onclick="showPage('orderPage', this)"><i class="fa fa-bullhorn"></i><br>Market</div>
+        <div id="menuHome" class="nav-item active" onclick="showPage('homePage', this)"><i class="fa fa-home"></i><br>Home</div>
+        <div id="menuMarket" class="nav-item" onclick="showPage('orderPage', this)"><i class="fa fa-bullhorn"></i><br>Market</div>
         <div id="adminTab" class="nav-item" style="display:none;" onclick="location.href='admin.html'"><i class="fa fa-user-shield"></i><br>Admin</div>
     </nav>
 
