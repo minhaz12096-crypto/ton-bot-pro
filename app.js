@@ -1,136 +1,90 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, increment, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ১. ফায়ারবেস কনফিগ (আপনার দেওয়া ডাটা)
 const firebaseConfig = {
     apiKey: "AIzaSyDYaSQbU380U6hcUmBgkDr4WAEmEu45X_U",
     authDomain: "tonnow-pro.firebaseapp.com",
-    databaseURL: "https://tonnow-pro-default-rtdb.firebaseio.com",
     projectId: "tonnow-pro",
     storageBucket: "tonnow-pro.firebasestorage.app",
     messagingSenderId: "585362095075",
-    appId: "1:585362095075:web:a94096a650ab74f3e03ed6",
-    measurementId: "G-SS1QH64NRJ"
+    appId: "1:585362095075:web:a94096a650ab74f3e03ed6"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// টেলিগ্রাম সেটিংস
 const tg = window.Telegram.WebApp;
-const BOT_TOKEN = "8615585551:AAHzEr6xawPtdoyMIzCujErMGKkJB0tW5do";
+const uid = tg.initDataUnsafe?.user?.id?.toString() || "12345";
 const ADMIN_ID = "8382029741"; 
-const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest";
-const uName = tg.initDataUnsafe?.user?.first_name || "User";
 
-// ২. অটোমেটিক এডমিন বাটন চেক
-function setupAdminUI() {
-    const adminBtn = document.getElementById('adminTab');
-    if (adminBtn) {
-        adminBtn.style.display = (uid === ADMIN_ID) ? "block" : "none";
-    }
+// 1. Force Admin Privacy (শুধুমাত্র আপনি দেখবেন)
+if(uid === ADMIN_ID) {
+    document.getElementById('adminTab').style.display = "block";
 }
 
-// ৩. ইউজার ডাটা ইনিশিয়ালাইজ (রেফারেল সহ)
+// 2. Init User with Referral
 async function initUser() {
     tg.expand();
-    setupAdminUI();
-    
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
     
-    // রেফারেল আইডি চেক (বট লিঙ্কের মাধ্যমে আসলে)
+    // Referral Check
     const urlParams = new URLSearchParams(window.location.search);
-    const referrerId = urlParams.get('start');
+    const refBy = urlParams.get('start');
 
     if(!snap.exists()) {
         await setDoc(userRef, { 
-            points: 100, // নতুন জয়েন বোনাস
-            ton: 0, 
-            completed: [], 
-            adsWatched: 0,
-            referredBy: referrerId || null,
-            referrals: 0
+            points: 0, ton: 0, adsWatched: 0, 
+            referrals: 0, referredBy: refBy || null, completed: [] 
         });
-
-        // রেফারারকে বোনাস দেওয়া
-        if(referrerId) {
-            const refUserRef = doc(db, "users", referrerId);
-            await updateDoc(refUserRef, { 
-                points: increment(500),
-                referrals: increment(1)
+        if(refBy) {
+            await updateDoc(doc(db, "users", refBy), { 
+                points: increment(500), referrals: increment(1) 
             });
         }
     }
+    
+    document.getElementById('userName').innerText = tg.initDataUnsafe?.user?.first_name || "User";
+    document.getElementById('refLink').value = `https://t.me/your_bot_username?start=${uid}`;
     updateUI();
     renderTasks();
 }
 
-// ৪. ইউজারকে টাস্ক পোস্ট করতে দেওয়া (Pay to Post)
-window.postUserTask = async () => {
-    const title = prompt("Task Title:");
-    const url = prompt("Task URL:");
-    const cost = 1.0; // ১ টন কাটবে
-
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
+// 3. Render Tasks (Admin & User Posted)
+window.renderTasks = async () => {
+    const list = document.getElementById('taskList');
+    const tasks = await getDocs(collection(db, "tasks"));
+    const userSnap = await getDoc(doc(db, "users", uid));
+    const done = userSnap.data().completed || [];
     
-    if(snap.data().ton >= cost) {
-        await updateDoc(userRef, { ton: increment(-cost) });
-        await addDoc(collection(db, "tasks"), {
-            title: title,
-            url: url,
-            reward: 500,
-            createdBy: uid,
-            status: "active"
-        });
-        alert("Task Posted Successfully!");
-        renderTasks();
-    } else {
-        alert("Insufficient TON balance to post task!");
-    }
+    list.innerHTML = "";
+    tasks.forEach(tDoc => {
+        const t = tDoc.data();
+        const tid = tDoc.id;
+        if(!done.includes(tid)) {
+            list.innerHTML += `
+                <div class="task-card">
+                    <div><b>${t.title}</b><br><small>+${t.reward} PTS</small></div>
+                    <button onclick="doTask('${tid}','${t.url}',${t.reward})">Start</button>
+                </div>`;
+        }
+    });
 };
 
-// ৫. উইথড্রয়াল লজিক (Ads Condition)
-window.requestWithdrawal = async () => {
-    const walletAddr = document.getElementById('walletAddr').value;
-    const snap = await getDoc(doc(db, "users", uid));
-    const d = snap.data();
-    
-    if(!walletAddr || walletAddr.length < 10) return alert("Invalid Address!");
-
-    // ১ টন প্রতি ১০টি অ্যাড দেখার শর্ত
-    const requiredAds = Math.max(10, Math.ceil(d.ton) * 10);
-    if ((d.adsWatched || 0) < requiredAds) {
-        return alert(`Watch at least ${requiredAds} ads to withdraw! (Current: ${d.adsWatched})`);
-    }
-
-    if (d.ton >= 1) {
-        await addDoc(collection(db, "withdrawals"), { 
-            uid: uid, addr: walletAddr, amount: d.ton, status: "pending", date: new Date()
+window.doTask = (id, url, reward) => {
+    window.open(url, '_blank');
+    setTimeout(async () => {
+        await updateDoc(doc(db, "users", uid), { 
+            points: increment(reward), 
+            completed: arrayUnion(id) 
         });
-        await updateDoc(doc(db, "users", uid), { ton: 0, adsWatched: 0 });
-        alert("Withdrawal request sent!");
-        updateUI();
-    } else {
-        alert("Minimum 1.0 TON needed!");
-    }
+        updateUI(); renderTasks();
+    }, 5000);
 };
 
-// UI এবং অন্যান্য ফাংশন আগের মতই থাকবে...
-async function updateUI() {
-    const snap = await getDoc(doc(db, "users", uid));
-    if(snap.exists()) {
-        const d = snap.data();
-        document.getElementById('ptsBalance').innerText = d.points || 0;
-        document.getElementById('tonBalance').innerText = (d.ton || 0).toFixed(2);
-        if(document.getElementById('userName')) document.getElementById('userName').innerText = uName;
-    }
-}
-
-window.changePage = (id, el) => {
+// UI, Navigation functions... (Keep them simple)
+window.changePage = (pageId, el) => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-    document.getElementById(id).classList.add('active-page');
+    document.getElementById(pageId).classList.add('active-page');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     el.classList.add('active');
 };
