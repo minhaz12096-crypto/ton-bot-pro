@@ -13,74 +13,81 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tg = window.Telegram.WebApp;
-const uid = tg.initDataUnsafe?.user?.id?.toString() || "8382029741"; // Admin for test
+const uid = tg.initDataUnsafe?.user?.id?.toString() || "8382029741"; 
 
-// Launch Ad: 1 TON = 10,000 Points
+// --- 1. Wallet Connect ---
+const tonConnectUI = new TONConnectUI.TonConnectUI({
+    manifestUrl: 'https://ton-bot-pro.vercel.app/manifest.json',
+    buttonRootId: 'ton-connect-btn'
+});
+
+// --- 2. Adsgram (Ads) ---
+const AdController = window.Adsgram.init({ blockId: "8185" }); // আপনার Block ID দিন
+
+window.showAd = async () => {
+    AdController.show().then(async (result) => {
+        await updateDoc(doc(db, "users", uid), { points: increment(100) });
+        updateUI();
+        alert("Earned 100 PTS!");
+    }).catch(() => alert("Ad not ready"));
+};
+
+// --- 3. Multi-Language System ---
+let currentLang = 'EN';
+const texts = {
+    EN: { bal: "Advertising Balance", create: "Create Promotion", price: "Price: 1.0 TON = 10,000 Points", tasks: "Active Campaigns" },
+    BN: { bal: "বিজ্ঞাপন ব্যালেন্স", create: "নতুন বিজ্ঞাপন", price: "মূল্য: ১.০ টন = ১০,০০০ পয়েন্ট", tasks: "চলতি ক্যাম্পেইন" }
+};
+
+window.toggleLang = () => {
+    currentLang = (currentLang === 'EN') ? 'BN' : 'EN';
+    document.getElementById('currentLang').innerText = currentLang;
+    document.getElementById('labelBalance').innerText = texts[currentLang].bal;
+    document.getElementById('labelCreateAd').innerText = texts[currentLang].create;
+    document.getElementById('labelPriceInfo').innerText = texts[currentLang].price;
+    document.getElementById('labelActiveTasks').innerText = texts[currentLang].tasks;
+};
+
+// --- 4. Market Logic (1 TON = 10,000 PTS) ---
 window.launchAd = async () => {
     const title = document.getElementById('tTitle').value;
     const link = document.getElementById('tLink').value;
-    
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
 
     if (snap.data()?.ton >= 1.0) {
         await updateDoc(userRef, { ton: increment(-1.0) });
-        await addDoc(collection(db, "tasks"), {
-            title: title,
-            url: link,
-            reward: 50,
-            budget: 10000,
-            rem: 10000,
-            status: "active"
-        });
-        alert("Success! Your Ad is live.");
-        location.reload();
+        await addDoc(collection(db, "tasks"), { title, url: link, reward: 50, rem: 10000, status: "active" });
+        alert("Ad Launched!");
+        showPage('homePage');
     } else {
-        alert("Low Balance! Minimum 1.0 TON needed.");
+        alert("Need 1.0 TON!");
     }
 };
 
-// Earn Logic: Point Deduction
 window.doTask = async (id, reward) => {
     const tRef = doc(db, "tasks", id);
     const tSnap = await getDoc(tRef);
-    const remaining = tSnap.data().rem - reward;
-
-    if (remaining <= 0) {
-        await deleteDoc(tRef); // বাজেট শেষ হলে অটো ডিলিট
-    } else {
-        await updateDoc(tRef, { rem: remaining });
-    }
+    const rem = tSnap.data().rem - reward;
+    if (rem <= 0) await deleteDoc(tRef);
+    else await updateDoc(tRef, { rem: rem });
     await updateDoc(doc(db, "users", uid), { points: increment(reward) });
-    alert("Reward Claimed!");
-    renderTasks();
+    updateUI();
 };
 
-// Load Tasks
-async function renderTasks() {
-    const list = document.getElementById('taskList');
-    const q = query(collection(db, "tasks"), where("status", "==", "active"));
-    const snap = await getDocs(q);
-    list.innerHTML = "";
-    snap.forEach(d => {
-        const t = d.data();
-        list.innerHTML += `<div class="task-card" style="background:#151a21; padding:15px; border-radius:12px; margin-bottom:10px; display:flex; justify-content:space-between;">
-            <span>${t.title}</span>
-            <button onclick="window.open('${t.url}'); doTask('${d.id}', ${t.reward})" style="background:#0088cc; border:none; color:#fff; border-radius:5px; padding:5px 15px;">Join</button>
-        </div>`;
-    });
+// --- UI Updates ---
+async function updateUI() {
+    const snap = await getDoc(doc(db, "users", uid));
+    if(snap.exists()) {
+        document.getElementById('tonBalance').innerText = snap.data().ton.toFixed(2);
+        document.getElementById('ptsBalance').innerText = snap.data().points;
+    }
 }
-
-// Admin Tab Visibility
-if(uid === "8382029741") document.getElementById('adminTab').style.display = "block";
 
 window.showPage = (id, el) => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if(el) {
-        document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
 };
 
-renderTasks();
+if(uid === "8382029741") document.getElementById('adminTab').style.display = "block";
+updateUI();
