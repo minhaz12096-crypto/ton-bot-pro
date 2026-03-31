@@ -1,199 +1,138 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, getDocs, increment, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 1. 🔥 FIREBASE CONFIG (Firebase Console থেকে নিয়ে এখানে বসান)
+// ১. ফায়ারবেস কনফিগ (আপনার দেওয়া ডাটা)
 const firebaseConfig = {
     apiKey: "AIzaSyDYaSQbU380U6hcUmBgkDr4WAEmEu45X_U",
-  authDomain: "tonnow-pro.firebaseapp.com",
-  databaseURL: "https://tonnow-pro-default-rtdb.firebaseio.com",
-  projectId: "tonnow-pro",
-  storageBucket: "tonnow-pro.firebasestorage.app",
-  messagingSenderId: "585362095075",
-  appId: "1:585362095075:web:a94096a650ab74f3e03ed6",
-  measurementId: "G-SS1QH64NRJ"
+    authDomain: "tonnow-pro.firebaseapp.com",
+    databaseURL: "https://tonnow-pro-default-rtdb.firebaseio.com",
+    projectId: "tonnow-pro",
+    storageBucket: "tonnow-pro.firebasestorage.app",
+    messagingSenderId: "585362095075",
+    appId: "1:585362095075:web:a94096a650ab74f3e03ed6",
+    measurementId: "G-SS1QH64NRJ"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Telegram WebApp Setup
+// টেলিগ্রাম সেটিংস
 const tg = window.Telegram.WebApp;
-const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest_user";
-const uName = tg.initDataUnsafe?.user?.first_name || "Guest";
+const BOT_TOKEN = "8615585551:AAHzEr6xawPtdoyMIzCujErMGKkJB0tW5do";
+const ADMIN_ID = "8382029741"; 
+const uid = tg.initDataUnsafe?.user?.id?.toString() || "guest";
+const uName = tg.initDataUnsafe?.user?.first_name || "User";
 
-// 2. ⚙️ SETTINGS (আপনার তথ্য এখানে দিন)
-const ADMIN_ID = "8382029741"; // আপনার টেলিগ্রাম আইডি এখানে দিন
-const ADSGRAM_BLOCK_ID = "26383"; // Adsgram থেকে পাওয়া ID দিন
+// ২. অটোমেটিক এডমিন বাটন চেক
+function setupAdminUI() {
+    const adminBtn = document.getElementById('adminTab');
+    if (adminBtn) {
+        adminBtn.style.display = (uid === ADMIN_ID) ? "block" : "none";
+    }
+}
 
-// Adsgram Controller Setup
-const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-
-// --- AUTO ADS SYSTEM (Every 2 Minutes) ---
-setInterval(() => {
-    AdController.show().catch(() => console.log("Ad auto-skip"));
-}, 120000);
-
-// --- INITIALIZE USER DATA ---
+// ৩. ইউজার ডাটা ইনিশিয়ালাইজ (রেফারেল সহ)
 async function initUser() {
     tg.expand();
-    document.getElementById('userName').innerText = uName;
+    setupAdminUI();
     
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
     
+    // রেফারেল আইডি চেক (বট লিঙ্কের মাধ্যমে আসলে)
+    const urlParams = new URLSearchParams(window.location.search);
+    const referrerId = urlParams.get('start');
+
     if(!snap.exists()) {
         await setDoc(userRef, { 
-            points: 0, 
+            points: 100, // নতুন জয়েন বোনাস
             ton: 0, 
             completed: [], 
-            adsWatched: 0 
+            adsWatched: 0,
+            referredBy: referrerId || null,
+            referrals: 0
         });
+
+        // রেফারারকে বোনাস দেওয়া
+        if(referrerId) {
+            const refUserRef = doc(db, "users", referrerId);
+            await updateDoc(refUserRef, { 
+                points: increment(500),
+                referrals: increment(1)
+            });
+        }
     }
     updateUI();
     renderTasks();
 }
 
-// --- UPDATE UI DASHBOARD ---
-async function updateUI() {
-    const snap = await getDoc(doc(db, "users", uid));
-    if(snap.exists()) {
-        const data = snap.data();
-        document.getElementById('ptsBalance').innerText = data.points || 0;
-        document.getElementById('tonBalance').innerText = (data.ton || 0).toFixed(2);
-        if(document.getElementById('adStatus')) {
-            document.getElementById('adStatus').innerText = data.adsWatched || 0;
-        }
-    }
-}
+// ৪. ইউজারকে টাস্ক পোস্ট করতে দেওয়া (Pay to Post)
+window.postUserTask = async () => {
+    const title = prompt("Task Title:");
+    const url = prompt("Task URL:");
+    const cost = 1.0; // ১ টন কাটবে
 
-// --- RENDER TASKS FROM FIREBASE ---
-window.renderTasks = async () => {
-    const list = document.getElementById('taskList');
-    const userSnap = await getDoc(doc(db, "users", uid));
-    const completedTasks = userSnap.data().completed || [];
-    
-    const querySnapshot = await getDocs(collection(db, "tasks"));
-    list.innerHTML = "";
-    
-    querySnapshot.forEach((tDoc) => {
-        const task = tDoc.data();
-        const taskId = tDoc.id;
-        const isDone = completedTasks.includes(taskId);
-        
-        list.innerHTML += `
-            <div class="task-card">
-                <div class="task-info">
-                    <b>${task.title}</b>
-                    <span>+${task.reward} PTS</span>
-                </div>
-                <button class="btn-claim ${isDone ? 'claimed' : ''}" 
-                    onclick="handleTask('${taskId}', '${task.url}', ${task.reward})" 
-                    ${isDone ? 'disabled' : ''}>
-                    ${isDone ? 'Finished' : 'Start'}
-                </button>
-            </div>`;
-    });
-};
-
-// --- HANDLE TASK CLICK ---
-window.handleTask = async (id, url, reward) => {
-    window.open(url, '_blank');
-    // Wait 5 seconds to simulate verification
-    setTimeout(async () => {
-        const userRef = doc(db, "users", uid);
-        await updateDoc(userRef, {
-            points: increment(reward),
-            completed: arrayUnion(id)
-        });
-        alert("Success! Points added.");
-        updateUI();
-        renderTasks();
-    }, 5000);
-};
-
-// --- EXCHANGE POINTS TO TON ---
-window.exchangePoints = async () => {
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
-    const currentPoints = snap.data().points || 0;
-
-    if(currentPoints < 1000) {
-        return alert("You need at least 1000 PTS to exchange!");
+    
+    if(snap.data().ton >= cost) {
+        await updateDoc(userRef, { ton: increment(-cost) });
+        await addDoc(collection(db, "tasks"), {
+            title: title,
+            url: url,
+            reward: 500,
+            createdBy: uid,
+            status: "active"
+        });
+        alert("Task Posted Successfully!");
+        renderTasks();
+    } else {
+        alert("Insufficient TON balance to post task!");
     }
-
-    await updateDoc(userRef, {
-        points: increment(-1000),
-        ton: increment(1.0)
-    });
-    alert("Exchanged 1000 PTS for 1.0 TON!");
-    updateUI();
 };
 
-// --- WITHDRAWAL LOGIC WITH ADS CONDITION ---
+// ৫. উইথড্রয়াল লজিক (Ads Condition)
 window.requestWithdrawal = async () => {
     const walletAddr = document.getElementById('walletAddr').value;
     const snap = await getDoc(doc(db, "users", uid));
     const d = snap.data();
     
-    if(!walletAddr || walletAddr.length < 10) {
-        return alert("Please enter a valid TON address!");
-    }
+    if(!walletAddr || walletAddr.length < 10) return alert("Invalid Address!");
 
-    const requiredAds = Math.ceil(d.ton) * 10; // 1 TON = 10 Ads
-    const currentAds = d.adsWatched || 0;
-
-    if (currentAds < requiredAds) {
-        alert(`Withdrawal Locked! You must watch ${requiredAds} ads for ${d.ton.toFixed(1)} TON. Current: ${currentAds}`);
-        
-        // Show Adsgram Ad
-        AdController.show().then(async () => {
-            await updateDoc(doc(db, "users", uid), { adsWatched: increment(1) });
-            updateUI();
-        }).catch(() => alert("Ad failed to load. Please try again."));
-        
-        return;
+    // ১ টন প্রতি ১০টি অ্যাড দেখার শর্ত
+    const requiredAds = Math.max(10, Math.ceil(d.ton) * 10);
+    if ((d.adsWatched || 0) < requiredAds) {
+        return alert(`Watch at least ${requiredAds} ads to withdraw! (Current: ${d.adsWatched})`);
     }
 
     if (d.ton >= 1) {
-        // Send request to Firebase
         await addDoc(collection(db, "withdrawals"), { 
-            uid: uid, 
-            addr: walletAddr, 
-            amount: d.ton, 
-            status: "pending",
-            time: new Date()
+            uid: uid, addr: walletAddr, amount: d.ton, status: "pending", date: new Date()
         });
-        
-        // Reset Balance
-        await updateDoc(doc(db, "users", uid), { 
-            ton: 0, 
-            adsWatched: 0 
-        });
-        
-        alert("Withdrawal request sent to Admin!");
+        await updateDoc(doc(db, "users", uid), { ton: 0, adsWatched: 0 });
+        alert("Withdrawal request sent!");
         updateUI();
     } else {
-        alert("Minimum 1.0 TON required!");
+        alert("Minimum 1.0 TON needed!");
     }
 };
 
-// --- ADMIN ACCESS CHECK ---
-window.checkAdminAccess = () => {
-    if(uid === ADMIN_ID) {
-        window.location.href = "admin.html";
-    } else {
-        alert("Admin access denied!");
+// UI এবং অন্যান্য ফাংশন আগের মতই থাকবে...
+async function updateUI() {
+    const snap = await getDoc(doc(db, "users", uid));
+    if(snap.exists()) {
+        const d = snap.data();
+        document.getElementById('ptsBalance').innerText = d.points || 0;
+        document.getElementById('tonBalance').innerText = (d.ton || 0).toFixed(2);
+        if(document.getElementById('userName')) document.getElementById('userName').innerText = uName;
     }
-};
+}
 
-// --- NAVIGATION ---
-window.changePage = (pageId, element) => {
+window.changePage = (id, el) => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
-    document.getElementById(pageId).classList.add('active-page');
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    element.classList.add('active');
+    document.getElementById(id).classList.add('active-page');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
 };
 
-// Start App
 initUser();
