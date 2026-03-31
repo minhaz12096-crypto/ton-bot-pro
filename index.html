@@ -3,80 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToNow Pro Clone</title>
+    <title>ToNow Ads Marketplace</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://adsgram.ai/sdk/v1/adsgram.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="forceJoin" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h3>Join Our Channel</h3>
-            <p>You must join our channel to use this bot.</p>
-            <a href="https://t.me/your_channel" class="btn-main">Join Now</a>
-            <button onclick="checkJoin()">I have Joined</button>
-        </div>
+    <div class="top-settings">
+        <div class="lang-box"><i class="fa fa-globe"></i> EN</div>
+        <div class="wallet-status" onclick="connectWallet()"><i class="fa fa-wallet"></i> Connect</div>
     </div>
 
-    <header class="header">
-        <div class="user-profile">
-            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-            <span id="userName">Loading...</span>
-        </div>
-        <div class="balance-card">
-            <div class="bal-box">
-                <small>Points</small>
-                <div id="ptsBalance">0</div>
-            </div>
-            <div class="bal-box">
-                <small>TON Balance</small>
-                <div id="tonBalance">0.00</div>
-            </div>
-        </div>
+    <header class="main-header">
+        <div class="balance-title">Advertising Balance</div>
+        <div class="balance-amount"><span id="tonBalance">0.00</span> <small>TON</small></div>
+        <div class="points-badge"><i class="fa fa-bolt"></i> <span id="ptsBalance">0</span> Points</div>
+        <button class="btn-deposit" onclick="changePage('depositPage')">Add Funds (Min 1 TON)</button>
     </header>
 
-    <main id="appContent">
-        <div id="homePage" class="page active-page">
-            <div class="section-header">
-                <h3>Available Tasks</h3>
-                <button class="btn-sm" onclick="showPostTask()">+ Post Task</button>
-            </div>
+    <main id="app">
+        <div id="homePage" class="page active">
+            <div class="section-title">Earn Points</div>
             <div id="taskList"></div>
         </div>
 
-        <div id="refPage" class="page">
-            <h3>Referral System</h3>
+        <div id="orderPage" class="page">
+            <div class="section-title">Create Advertising</div>
             <div class="card">
-                <p>Invite friends and earn 500 PTS!</p>
-                <input type="text" id="refLink" readonly>
-                <button onclick="copyRef()">Copy Link</button>
-            </div>
-            <div class="ref-stats">
-                <div>Total Referrals: <span id="refCount">0</span></div>
-            </div>
-        </div>
-
-        <div id="walletPage" class="page">
-            <h3>Wallet & Withdraw</h3>
-            <div class="card">
-                <p>Ads Watched: <span id="adStatus">0</span>/10</p>
-                <button class="btn-main" onclick="exchangePoints()">Convert 1000 PTS to 1 TON</button>
-            </div>
-            <div class="withdraw-box">
-                <input type="text" id="walletAddr" placeholder="Enter TON Wallet Address">
-                <button class="btn-main btn-alt" onclick="requestWithdrawal()">Withdraw TON</button>
+                <input type="text" id="taskName" placeholder="Channel/Group Name">
+                <input type="text" id="taskLink" placeholder="https://t.me/yourlink">
+                <p>Cost: 1.0 TON (10,000 Views)</p>
+                <button class="btn-main" onclick="createUserTask()">Launch Campaign</button>
             </div>
         </div>
     </main>
 
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="changePage('homePage', this)"><i class="fa fa-tasks"></i><br>Tasks</div>
-        <div class="nav-item" onclick="changePage('refPage', this)"><i class="fa fa-users"></i><br>Ref</div>
-        <div class="nav-item" onclick="changePage('walletPage', this)"><i class="fa fa-wallet"></i><br>Wallet</div>
-        <div id="adminTab" class="nav-item" style="display:none;" onclick="location.href='admin.html'"><i class="fa fa-lock"></i><br>Admin</div>
+    <nav class="footer-nav">
+        <div class="nav-btn active" onclick="changePage('homePage')"><i class="fa fa-home"></i><br>Home</div>
+        <div class="nav-btn" onclick="changePage('orderPage')"><i class="fa fa-bullhorn"></i><br>Order</div>
+        <div class="nav-btn" onclick="changePage('profilePage')"><i class="fa fa-user"></i><br>Profile</div>
     </nav>
-
-    <script type="module" src="app.js"></script>
 </body>
 </html>
