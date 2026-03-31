@@ -16,7 +16,7 @@ const tg = window.Telegram.WebApp;
 const uid = tg.initDataUnsafe?.user?.id?.toString() || "12345";
 const ADMIN_ID = "8382029741"; 
 const BOT_TOKEN = "8615585551:AAHzEr6xawPtdoyMIzCujErMGKkJB0tW5do";
-const GROUP_ID = "-1002360879685"; // আপনার গ্রুপ আইডি
+const GROUP_ID = "-1003315885691"; // আপনার গ্রুপ আইডি
 
 // --- অ্যাডমিন সেটিংস আইকন প্রদর্শন ---
 if(uid === ADMIN_ID) {
