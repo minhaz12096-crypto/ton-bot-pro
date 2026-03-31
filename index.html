@@ -3,45 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToNow Ads Marketplace</title>
+    <title>TonNow Ad Market</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="top-settings">
-        <div class="lang-box"><i class="fa fa-globe"></i> EN</div>
-        <div class="wallet-status" onclick="connectWallet()"><i class="fa fa-wallet"></i> Connect</div>
+    <div class="status-bar">
+        <div class="left"><i class="fa fa-globe"></i> EN</div>
+        <div class="right" onclick="connectWallet()"><i class="fa fa-wallet"></i> Connect</div>
     </div>
 
-    <header class="main-header">
-        <div class="balance-title">Advertising Balance</div>
-        <div class="balance-amount"><span id="tonBalance">0.00</span> <small>TON</small></div>
-        <div class="points-badge"><i class="fa fa-bolt"></i> <span id="ptsBalance">0</span> Points</div>
-        <button class="btn-deposit" onclick="changePage('depositPage')">Add Funds (Min 1 TON)</button>
-    </header>
+    <div class="hero">
+        <div class="ad-label">Advertising Balance</div>
+        <div class="main-bal"><span id="tonBalance">0.00</span> <small>TON</small></div>
+        <div class="pts-pill"><i class="fa fa-bolt"></i> <span id="ptsBalance">0</span> PTS</div>
+        <button class="order-toggle" onclick="showPage('orderPage')">Launch New Ad</button>
+    </div>
 
-    <main id="app">
-        <div id="homePage" class="page active">
-            <div class="section-title">Earn Points</div>
-            <div id="taskList"></div>
+    <div id="homePage" class="page active">
+        <h4 class="section-title">Active Campaigns</h4>
+        <div id="taskList" class="task-container"></div>
+    </div>
+
+    <div id="orderPage" class="page">
+        <div class="order-box">
+            <h4>Start Promotion</h4>
+            <input type="text" id="tTitle" placeholder="Channel/Bot Name">
+            <input type="text" id="tLink" placeholder="Link (t.me/...)">
+            <div class="pricing">Price: <b>1.0 TON</b> for <b>10,000 Views</b></div>
+            <button class="btn-launch" onclick="launchAd()">Pay & Start</button>
+            <button class="btn-cancel" onclick="showPage('homePage')">Back</button>
         </div>
+    </div>
 
-        <div id="orderPage" class="page">
-            <div class="section-title">Create Advertising</div>
-            <div class="card">
-                <input type="text" id="taskName" placeholder="Channel/Group Name">
-                <input type="text" id="taskLink" placeholder="https://t.me/yourlink">
-                <p>Cost: 1.0 TON (10,000 Views)</p>
-                <button class="btn-main" onclick="createUserTask()">Launch Campaign</button>
-            </div>
-        </div>
-    </main>
-
-    <nav class="footer-nav">
-        <div class="nav-btn active" onclick="changePage('homePage')"><i class="fa fa-home"></i><br>Home</div>
-        <div class="nav-btn" onclick="changePage('orderPage')"><i class="fa fa-bullhorn"></i><br>Order</div>
-        <div class="nav-btn" onclick="changePage('profilePage')"><i class="fa fa-user"></i><br>Profile</div>
+    <nav class="bottom-nav">
+        <div class="nav-btn active" onclick="showPage('homePage', this)"><i class="fa fa-home"></i><br>Home</div>
+        <div class="nav-btn" onclick="showPage('orderPage', this)"><i class="fa fa-bullhorn"></i><br>Market</div>
+        <div id="adminTab" class="nav-btn" style="display:none;" onclick="location.href='admin.html'"><i class="fa fa-user-shield"></i><br>Admin</div>
     </nav>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
