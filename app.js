@@ -9,7 +9,7 @@ const uid = tg.initDataUnsafe?.user?.id?.toString() || "8382029741";
 
 // Wallet Connect Setup
 const tonConnectUI = new TONConnectUI.TonConnectUI({
-    manifestUrl: 'https://yourlink.vercel.app/manifest.json',
+    manifestUrl: 'https://ton-bot-pro.vercel.app',
     buttonRootId: 'ton-connect-btn'
 });
 
