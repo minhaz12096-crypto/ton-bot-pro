@@ -24,7 +24,7 @@ const uName = tg.initDataUnsafe?.user?.first_name || "Guest";
 
 // 2. ⚙️ SETTINGS (আপনার তথ্য এখানে দিন)
 const ADMIN_ID = "8382029741"; // আপনার টেলিগ্রাম আইডি এখানে দিন
-const ADSGRAM_BLOCK_ID = "YOUR_ADSGRAM_ID"; // Adsgram থেকে পাওয়া ID দিন
+const ADSGRAM_BLOCK_ID = "26383"; // Adsgram থেকে পাওয়া ID দিন
 
 // Adsgram Controller Setup
 const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
