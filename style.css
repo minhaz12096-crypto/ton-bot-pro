@@ -1,199 +1,25 @@
-/* style.css - সম্পূর্ণ কোড */
-:root {
-    --primary: #2e7d32; /* গাঢ় সবুজ (ফুলের সাথে মানানসই) */
-    --accent: #d81b60; /* গোলাপী (বাটনের জন্য) */
-    --text-dark: #333;
-    --text-light: #fff;
-    --card-bg: rgba(255, 255, 255, 0.85); /* হালকা স্বচ্ছ সাদা কার্ড় */
-}
+:root { --primary: #2e7d32; --accent: #d81b60; --card-bg: rgba(255, 255, 255, 0.9); }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    /* ফুলের বাগানের ব্যাকগ্রাউন্ড ছবি */
-    background-image: url('https://images.unsplash.com/photo-1530836369250-ef72a3f5c476?q=80&w=1000&auto=format&fit=crop'); 
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    color: var(--text-dark);
-    padding-bottom: 70px; /* বটম মেনুর জন্য জায়গা */
+    margin: 0; padding-bottom: 70px;
+    background: url('https://images.unsplash.com/photo-1530836369250-ef72a3f5c476?q=80&w=1000') no-repeat center center fixed;
+    background-size: cover; font-family: 'Segoe UI', sans-serif;
 }
 
-/* Top Bar */
-.top-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(5px);
-}
+.top-nav { display: flex; justify-content: space-between; padding: 10px; background: rgba(255,255,255,0.7); }
+.admin-only { display: none; color: var(--primary); font-size: 22px; cursor: pointer; }
 
-.lang-selector {
-    cursor: pointer;
-    font-weight: bold;
-    color: var(--primary);
-    background: #fff;
-    padding: 5px 10px;
-    border-radius: 20px;
-    border: 1px solid var(--primary);
-}
+.hero { text-align: center; padding: 25px; background: rgba(255,255,255,0.6); margin: 15px; border-radius: 20px; }
+.main-balance { font-size: 38px; font-weight: bold; color: var(--primary); }
+.pts-pill { background: #fff; border: 1px solid var(--accent); padding: 5px 15px; border-radius: 20px; color: var(--accent); font-weight: bold; cursor: pointer; }
 
-/* Wallet Button Styling */
-#ton-connect-btn button {
-    background-color: var(--primary) !important;
-    color: white !important;
-    border-radius: 20px !important;
-    padding: 8px 15px !important;
-}
+.page { display: none; padding: 15px; }
+.page.active { display: block; }
+.card { background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-/* Hero Section */
-.hero {
-    text-align: center;
-    padding: 30px 15px;
-    background: rgba(255, 255, 255, 0.5);
-    margin: 15px;
-    border-radius: 20px;
-}
+input { width: 90%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #ccc; }
+.btn-success { width: 100%; background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
-.ad-label {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 5px;
-}
-
-.main-balance {
-    font-size: 36px;
-    font-weight: bold;
-    color: var(--primary);
-}
-
-.main-balance small {
-    font-size: 18px;
-    color: #555;
-}
-
-.pts-pill {
-    display: inline-block;
-    background: #fff;
-    color: var(--accent);
-    padding: 5px 15px;
-    border-radius: 20px;
-    font-weight: bold;
-    margin: 10px 0;
-    cursor: pointer;
-    border: 1px solid var(--accent);
-}
-
-.btn-primary {
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: bold;
-    margin-top: 10px;
-    cursor: pointer;
-}
-
-/* Pages & Cards */
-.page {
-    display: none;
-    padding: 15px;
-}
-
-.page.active {
-    display: block;
-}
-
-.card {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 15px;
-}
-
-h4 {
-    margin-top: 0;
-    color: var(--primary);
-}
-
-input {
-    width: 90%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-.btn-success {
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* Task List Styling */
-.task-item {
-    background: var(--card-bg);
-    padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.task-title {
-    font-weight: bold;
-    color: #333;
-}
-
-.task-reward {
-    color: var(--accent);
-    font-weight: bold;
-}
-
-.btn-task {
-    background-color: var(--primary);
-    color: white;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Bottom Menu */
-.bottom-menu {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px solid #eee;
-    backdrop-filter: blur(5px);
-}
-
-.nav-item {
-    text-align: center;
-    color: #777;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.nav-item.active {
-    color: var(--primary);
-    font-weight: bold;
-}
-
-.nav-item i {
-    font-size: 20px;
-    margin-bottom: 3px;
-}
+.bottom-menu { position: fixed; bottom: 0; width: 100%; background: #fff; display: flex; padding: 10px 0; border-top: 1px solid #ddd; }
+.nav-item { flex: 1; text-align: center; font-size: 11px; color: #777; cursor: pointer; }
+.nav-item.active { color: var(--primary); font-weight: bold; }
