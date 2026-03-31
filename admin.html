@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToNow Admin Dashboard</title>
+    <style>
+        :root { --primary: #007aff; --bg: #000; --card: #1c1c1e; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; padding: 20px; margin: 0; }
+        .box { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #2c2c2e; }
+        h2, h3 { color: var(--primary); margin-top: 0; }
+        input { width: 92%; padding: 12px; margin: 10px 0; border-radius: 8px; background: #2c2c2e; border: 1px solid #3a3a3c; color: #fff; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; }
+        .req-card { background: #2c2c2e; padding: 15px; border-radius: 12px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
+        .req-info b { color: #34c759; font-size: 18px; }
+        .req-info small { color: #8e8e93; display: block; margin-top: 5px; word-break: break-all; }
+        .approve-btn { background: #34c759; width: auto; padding: 8px 15px; font-size: 14px; }
+        .back-btn { background: #3a3a3c; margin-bottom: 20px; width: auto; }
+    </style>
+</head>
+<body>
+
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back to Bot</button>
+    <h2>Admin Control Panel 🛡️</h2>
+
+    <div class="box">
+        <h3>Add New Task</h3>
+        <input type="text" id="tTitle" placeholder="Task Title (e.g. Join Channel)">
+        <input type="text" id="tUrl" placeholder="Link (YouTube or Telegram)">
+        <input type="number" id="tReward" placeholder="Reward Points (e.g. 500)">
+        <button onclick="saveTask()">Publish Task</button>
+    </div>
+
+    <div class="box">
+        <h3>Pending Withdrawals</h3>
+        <div id="withdrawList">Loading requests...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // 🔥 Your Provided Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyDYaSQbU380U6hcUmBgkDr4WAEmEu45X_U",
+          authDomain: "tonnow-pro.firebaseapp.com",
+          databaseURL: "https://tonnow-pro-default-rtdb.firebaseio.com",
+          projectId: "tonnow-pro",
+          storageBucket: "tonnow-pro.firebasestorage.app",
+          messagingSenderId: "585362095075",
+          appId: "1:585362095075:web:a94096a650ab74f3e03ed6",
+          measurementId: "G-SS1QH64NRJ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 1. Function to Save Task
+        window.saveTask = async () => {
+            const title = document.getElementById('tTitle').value;
+            const url = document.getElementById('tUrl').value;
+            const reward = parseInt(document.getElementById('tReward').value);
+
+            if(!title || !url || !reward) return alert("Please fill all fields!");
+
+            try {
+                await addDoc(collection(db, "tasks"), {
+                    title: title,
+                    url: url,
+                    reward: reward,
+                    status: "active",
+                    createdAt: new Date()
+                });
+                alert("Task added successfully!");
+                location.reload();
+            } catch (e) {
+                alert("Error adding task: " + e.message);
+            }
+        };
+
+        // 2. Function to Load Withdrawal Requests
+        async function loadWithdrawals() {
+            const listDiv = document.getElementById('withdrawList');
+            try {
+                const q = query(collection(db, "withdrawals"), where("status", "==", "pending"));
+                const querySnapshot = await getDocs(q);
+                
+                listDiv.innerHTML = "";
+                
+                if (querySnapshot.empty) {
+                    listDiv.innerHTML = "No pending withdrawal requests.";
+                    return;
+                }
+
+                querySnapshot.forEach((document) => {
+                    const data = document.data();
+                    const id = document.id;
+                    
+                    listDiv.innerHTML += `
+                        <div class="req-card">
+                            <div class="req-info">
+                                <b>${data.amount.toFixed(2)} TON</b>
+                                <small>Wallet: ${data.addr}</small>
+                                <small>User ID: ${data.uid}</small>
+                            </div>
+                            <button class="approve-btn" onclick="approveRequest('${id}')">Approve</button>
+                        </div>`;
+                });
+            } catch (e) {
+                listDiv.innerHTML = "Error loading data.";
+                console.error(e);
+            }
+        }
+
+        // 3. Function to Approve Request
+        window.approveRequest = async (id) => {
+            const confirmPay = confirm("Did you send the TON manually? Clicking OK will mark this as Paid.");
+            if (!confirmPay) return;
+
+            try {
+                const docRef = doc(db, "withdrawals", id);
+                await updateDoc(docRef, { 
+                    status: "Approved",
+                    approvedAt: new Date()
+                });
+                alert("Request marked as Approved!");
+                loadWithdrawals(); // Refresh list
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        };
+
+        // Run on Load
+        loadWithdrawals();
+
+    </script>
+</body>
+</html>

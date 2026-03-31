@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ToNow Pro Clone</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://adsgram.ai/sdk/v1/adsgram.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="user-profile">
+            <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+            <span id="userName">Loading...</span>
+        </div>
+        <div class="balance-container">
+            <div class="label">Total Balance</div>
+            <div class="balance"><span id="ptsBalance">0</span> <small>PTS</small></div>
+            <div class="ton-value"><span id="tonBalance">0.00</span> TON</div>
+        </div>
+    </header>
+
+    <main>
+        <div id="homePage" class="page active-page">
+            <h3 class="section-title">Tasks</h3>
+            <div id="taskList">Loading tasks...</div>
+        </div>
+
+        <div id="walletPage" class="page">
+            <h3 class="section-title">Wallet</h3>
+            <div class="card">
+                <p>Status: <span id="adStatus">0</span> Ads Watched</p>
+                <button class="btn-main" onclick="exchangePoints()">Convert PTS to TON</button>
+            </div>
+            <div class="withdraw-section">
+                <input type="text" id="walletAddr" placeholder="TON Wallet Address (UQ...)">
+                <button class="btn-main btn-alt" onclick="requestWithdrawal()">Withdraw TON</button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="changePage('homePage', this)"><i class="fa fa-bolt"></i><br>Tasks</div>
+        <div class="nav-item" onclick="changePage('walletPage', this)"><i class="fa fa-wallet"></i><br>Wallet</div>
+        <div class="nav-item" onclick="checkAdminAccess()"><i class="fa fa-cog"></i><br>Admin</div>
+    </nav>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
