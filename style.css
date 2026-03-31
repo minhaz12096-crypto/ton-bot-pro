@@ -1,15 +1,199 @@
-:root { --bg: #0b0e11; --card: #1c2127; --primary: #0088cc; --accent: #34c759; --text: #fff; }
-body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; }
-.status-bar { display: flex; justify-content: space-between; padding: 10px 20px; font-size: 13px; color: #848e9c; background: #151a21; }
-.hero { text-align: center; padding: 40px 10px; background: linear-gradient(180deg, #1c2127 0%, #0b0e11 100%); }
-.main-bal { font-size: 40px; font-weight: bold; color: var(--primary); margin: 5px 0; }
-.pts-pill { background: rgba(0, 136, 204, 0.1); padding: 5px 15px; border-radius: 20px; color: var(--primary); display: inline-block; font-weight: bold; }
-.order-toggle { margin-top: 20px; background: var(--primary); border: none; color: #fff; padding: 10px 25px; border-radius: 12px; font-weight: bold; }
-.page { display: none; padding: 20px; }
-.page.active { display: block; }
-.order-box { background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid #2b2f36; }
-input { width: 92%; padding: 12px; margin-bottom: 15px; border-radius: 10px; border: 1px solid #2b2f36; background: #0b0e11; color: #fff; }
-.btn-launch { width: 100%; background: var(--accent); border: none; color: #fff; padding: 12px; border-radius: 10px; font-weight: bold; margin-bottom: 10px; }
-.bottom-nav { position: fixed; bottom: 0; width: 100%; background: var(--card); display: flex; padding: 12px 0; border-top: 1px solid #2b2f36; }
-.nav-btn { flex: 1; text-align: center; color: #848e9c; font-size: 11px; }
-.nav-btn.active { color: var(--primary); }
+/* style.css - সম্পূর্ণ কোড */
+:root {
+    --primary: #2e7d32; /* গাঢ় সবুজ (ফুলের সাথে মানানসই) */
+    --accent: #d81b60; /* গোলাপী (বাটনের জন্য) */
+    --text-dark: #333;
+    --text-light: #fff;
+    --card-bg: rgba(255, 255, 255, 0.85); /* হালকা স্বচ্ছ সাদা কার্ড় */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* ফুলের বাগানের ব্যাকগ্রাউন্ড ছবি */
+    background-image: url('https://images.unsplash.com/photo-1530836369250-ef72a3f5c476?q=80&w=1000&auto=format&fit=crop'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: var(--text-dark);
+    padding-bottom: 70px; /* বটম মেনুর জন্য জায়গা */
+}
+
+/* Top Bar */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(5px);
+}
+
+.lang-selector {
+    cursor: pointer;
+    font-weight: bold;
+    color: var(--primary);
+    background: #fff;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--primary);
+}
+
+/* Wallet Button Styling */
+#ton-connect-btn button {
+    background-color: var(--primary) !important;
+    color: white !important;
+    border-radius: 20px !important;
+    padding: 8px 15px !important;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 30px 15px;
+    background: rgba(255, 255, 255, 0.5);
+    margin: 15px;
+    border-radius: 20px;
+}
+
+.ad-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.main-balance {
+    font-size: 36px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.main-balance small {
+    font-size: 18px;
+    color: #555;
+}
+
+.pts-pill {
+    display: inline-block;
+    background: #fff;
+    color: var(--accent);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin: 10px 0;
+    cursor: pointer;
+    border: 1px solid var(--accent);
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+/* Pages & Cards */
+.page {
+    display: none;
+    padding: 15px;
+}
+
+.page.active {
+    display: block;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+h4 {
+    margin-top: 0;
+    color: var(--primary);
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.btn-success {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Task List Styling */
+.task-item {
+    background: var(--card-bg);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-title {
+    font-weight: bold;
+    color: #333;
+}
+
+.task-reward {
+    color: var(--accent);
+    font-weight: bold;
+}
+
+.btn-task {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Bottom Menu */
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    backdrop-filter: blur(5px);
+}
+
+.nav-item {
+    text-align: center;
+    color: #777;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.nav-item i {
+    font-size: 20px;
+    margin-bottom: 3px;
+}
