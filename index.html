@@ -3,79 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToNow Garden Ads</title>
+    <title>ToNow Garden Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://adsgram.ai/sdk/v1/adsgram.js"></script>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="top-nav">
-        <div class="lang-selector" onclick="toggleLang()">
-            <i class="fa fa-globe"></i> <span id="currentLang">EN</span>
-        </div>
+        <div onclick="toggleLang()"><i class="fa fa-globe"></i> <span id="currentLang">EN</span></div>
         <div id="ton-connect-btn"></div>
-        <div id="adminSettingsIcon" class="admin-only" onclick="showPage('adminPanel')">
-            <i class="fa fa-cog"></i>
-        </div>
+        <div id="adminIcon" style="display:none" onclick="showPage('adminPanel')"><i class="fa fa-cog"></i></div>
     </div>
 
     <header class="hero">
-        <div id="labelBalance" class="ad-label">Balance</div>
         <div class="main-balance"><span id="tonBalance">0.00</span> <small>TON</small></div>
-        <div class="pts-pill" onclick="showAd()">
-            <i class="fa fa-bolt"></i> <span id="ptsBalance">0</span> PTS
-        </div>
+        <div style="color:var(--accent); font-weight:bold;"><i class="fa fa-bolt"></i> <span id="ptsBalance">0</span> Points</div>
     </header>
 
     <main>
         <div id="homePage" class="page active">
-            <h4 id="labelActiveTasks">Active Tasks</h4>
+            <h4 id="txtActive">Active Tasks</h4>
             <div id="taskList"></div>
         </div>
 
         <div id="orderPage" class="page">
             <div class="card">
-                <h4 id="labelCreateAd">Post Advertisement</h4>
-                <input type="text" id="tTitle" placeholder="Channel Name">
-                <input type="text" id="tLink" placeholder="t.me/link">
-                <p id="labelPriceInfo">Price: 1.0 TON = 10,000 Views</p>
-                <button class="btn-success" onclick="launchAd()">Launch Ad</button>
+                <h4>Post Advertisement</h4>
+                <div id="freeTag" style="color:green; font-weight:bold; display:none;">🎉 1 Free Task Available!</div>
+                <input type="text" id="taskTitle" placeholder="Channel Name">
+                <input type="text" id="taskLink" placeholder="t.me/yourlink">
+                <input type="number" id="taskTon" placeholder="TON Amount (e.g. 1 or 20)">
+                <p style="font-size:12px;">1 TON = 10,000 Points (50 Users)</p>
+                <button class="btn-main" onclick="processPost()">Pay & Launch</button>
             </div>
         </div>
 
         <div id="walletPage" class="page">
             <div class="card">
-                <h4>Withdraw TON</h4>
-                <input type="text" id="withdrawAddr" placeholder="TON Wallet Address">
-                <input type="number" id="withdrawAmount" placeholder="Amount (Min 1.0)">
-                <button class="btn-success" onclick="requestWithdraw()">Withdraw</button>
-            </div>
-        </div>
-
-        <div id="referPage" class="page">
-            <div class="card">
-                <h4>Refer & Earn</h4>
-                <p>Share link and get 500 PTS!</p>
-                <input type="text" id="refLink" readonly>
-            </div>
-        </div>
-
-        <div id="adminPanel" class="page">
-            <div class="card admin-card">
-                <h4>Admin Control</h4>
-                <button onclick="adminFreePost()">Free Task Post</button>
-                <div id="pendingWithdraws"></div>
+                <h4>Withdraw Earnings</h4>
+                <p>Min Withdraw: 10,000 Points</p>
+                <input type="text" id="wAddr" placeholder="Connect Wallet First" readonly>
+                <input type="number" id="wAmount" placeholder="Amount in Points">
+                <button class="btn-main" onclick="handleWithdraw()">Request Withdraw</button>
             </div>
         </div>
     </main>
 
     <nav class="bottom-menu">
-        <div class="nav-item active" onclick="showPage('homePage', this)"><i class="fa fa-home"></i><br>Home</div>
-        <div class="nav-item" onclick="showPage('orderPage', this)"><i class="fa fa-plus-circle"></i><br>Post</div>
+        <div class="nav-item active" onclick="showPage('homePage', this)"><i class="fa fa-tasks"></i><br>Tasks</div>
+        <div class="nav-item" onclick="showPage('orderPage', this)"><i class="fa fa-bullhorn"></i><br>Post</div>
         <div class="nav-item" onclick="showPage('walletPage', this)"><i class="fa fa-wallet"></i><br>Wallet</div>
-        <div class="nav-item" onclick="showPage('referPage', this)"><i class="fa fa-users"></i><br>Refer</div>
     </nav>
 
     <script type="module" src="app.js"></script>
